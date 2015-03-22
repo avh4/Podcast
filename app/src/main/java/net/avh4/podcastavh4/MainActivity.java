@@ -1,7 +1,6 @@
 package net.avh4.podcastavh4;
 
 import android.app.Activity;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,10 +14,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.loopj.android.http.SaxAsyncHttpResponseHandler;
-
-import org.apache.http.Header;
 
 
 public class MainActivity extends ActionBarActivity
@@ -35,6 +30,36 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
 
+    private final Player player;
+    private final PodcastSource podcastSource;
+
+    private static Player nextPlayer = null;
+    private static PodcastSource nextPodcastSource = null;
+
+    public MainActivity() {
+        if (nextPlayer != null) {
+            player = nextPlayer;
+            nextPlayer = null;
+        } else {
+            player = new AndroidPlayer(this);
+        }
+
+        if (nextPodcastSource != null) {
+            podcastSource = nextPodcastSource;
+            nextPodcastSource = null;
+        } else {
+            podcastSource = new RadioLabClient();
+        }
+    }
+
+    public static void setNextPlayer(Player player) {
+        nextPlayer = player;
+    }
+
+    public static void setNextPodcastSource(PodcastSource podcastSource) {
+        nextPodcastSource = podcastSource;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,17 +74,15 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        RadioLabClient.get(new SaxAsyncHttpResponseHandler<RssHandler>(new RssHandler()) {
+        podcastSource.get(new PodcastSource.PodcastSourceListener() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, RssHandler handler) {
-                Log.i(LOG_TAG, "Success: " + handler.latestTitle() + ": " + handler.latestMediaUrl());
-                MediaPlayer player = MediaPlayer.create(MainActivity.this, Uri.parse(handler.latestMediaUrl()));
-                player.start();
+            public void onPodcastReady(Uri uri) {
+                player.playStream(uri);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, RssHandler handler) {
-                Log.e(LOG_TAG, "Request failed: " + statusCode);
+            public void onError(Throwable throwable) {
+                Log.e(LOG_TAG, "Request failed", throwable);
             }
         });
     }
