@@ -53,5 +53,10 @@ public class MainActivityTest extends ActivityUnitTestCase<MainActivity> {
         public void get(PodcastSourceListener listener) {
             this.listener = listener;
         }
+
+        @Override
+        public String getTitle() {
+            return null;
+        }
     }
 }

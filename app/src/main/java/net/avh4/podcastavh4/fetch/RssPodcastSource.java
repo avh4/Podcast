@@ -12,8 +12,10 @@ import org.apache.http.Header;
 public class RssPodcastSource implements PodcastSource {
     private static AsyncHttpClient client = new AsyncHttpClient();
     private final String feedUrl;
+    private final String title;
 
-    public RssPodcastSource(String feedUrl) {
+    public RssPodcastSource(String title, String feedUrl) {
+        this.title = title;
         this.feedUrl = feedUrl;
     }
 
@@ -31,5 +33,10 @@ public class RssPodcastSource implements PodcastSource {
                 listener.onError(new Exception("Request failed: " + statusCode));
             }
         });
+    }
+
+    @Override
+    public String getTitle() {
+        return title;
     }
 }
