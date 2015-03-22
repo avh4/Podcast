@@ -14,9 +14,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.loopj.android.http.TextHttpResponseHandler;
+import com.loopj.android.http.SaxAsyncHttpResponseHandler;
 
 import org.apache.http.Header;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 
 public class MainActivity extends ActionBarActivity
@@ -47,17 +50,20 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        RadioLabClient.get(new TextHttpResponseHandler() {
+        RadioLabClient.get(new SaxAsyncHttpResponseHandler<DefaultHandler>(new DefaultHandler() {
             @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString,
-                                  Throwable throwable) {
-                Log.e(LOG_TAG, "Request failed: " + statusCode + ": " + responseString,
-                        throwable);
+            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                Log.i("START", qName);
+            }
+        }) {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, DefaultHandler defaultHandler) {
+                Log.i(LOG_TAG, "Success: " + statusCode);
             }
 
             @Override
-            public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.i(LOG_TAG, "Success: " + statusCode + ": " + responseString);
+            public void onFailure(int statusCode, Header[] headers, DefaultHandler defaultHandler) {
+                Log.e(LOG_TAG, "Request failed: " + statusCode);
             }
         });
     }
