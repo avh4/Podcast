@@ -7,11 +7,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.loopj.android.http.TextHttpResponseHandler;
+
+import org.apache.http.Header;
 
 
 public class MainActivity extends ActionBarActivity
@@ -42,6 +47,19 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+        RadioLabClient.get(new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString,
+                                  Throwable throwable) {
+                Log.e(LOG_TAG, "Request failed: " + statusCode + ": " + responseString,
+                        throwable);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                Log.i(LOG_TAG, "Success: " + statusCode + ": " + responseString);
+            }
+        });
     }
 
     @Override
