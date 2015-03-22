@@ -1,6 +1,8 @@
 package net.avh4.podcastavh4;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -51,6 +53,8 @@ public class MainActivity extends ActionBarActivity
             @Override
             public void onSuccess(int statusCode, Header[] headers, RssHandler handler) {
                 Log.i(LOG_TAG, "Success: " + handler.latestTitle() + ": " + handler.latestMediaUrl());
+                MediaPlayer player = MediaPlayer.create(MainActivity.this, Uri.parse(handler.latestMediaUrl()));
+                player.start();
             }
 
             @Override
