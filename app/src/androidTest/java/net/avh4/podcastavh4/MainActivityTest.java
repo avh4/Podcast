@@ -8,6 +8,7 @@ import android.view.ContextThemeWrapper;
 public class MainActivityTest extends ActivityUnitTestCase<MainActivity> {
 
     private static final Uri uri = Uri.parse("http://example.com/podcast.mp3");
+    private static final String title = "Fu-Go";
 
     private TestPlayer player;
     private TestPodcastSource podcastSource;
@@ -32,7 +33,7 @@ public class MainActivityTest extends ActivityUnitTestCase<MainActivity> {
     }
 
     public void testOnSuccessStartsPlayer() {
-        podcastSource.listener.onPodcastReady(uri);
+        podcastSource.listener.onPodcastReady(new Episode(null, title, uri));
         assertNotNull(player.uri);
         assertEquals(uri, player.uri);
     }

@@ -5,6 +5,7 @@ import android.net.Uri;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.SaxAsyncHttpResponseHandler;
 
+import net.avh4.podcastavh4.Episode;
 import net.avh4.podcastavh4.PodcastSource;
 
 import org.apache.http.Header;
@@ -25,7 +26,8 @@ public class RssPodcastSource implements PodcastSource {
             @Override
             public void onSuccess(int statusCode, Header[] headers, RssHandler handler) {
                 Uri uri = Uri.parse(handler.latestMediaUrl());
-                listener.onPodcastReady(uri);
+                Episode episode = new Episode(title, handler.latestTitle(), uri);
+                listener.onPodcastReady(episode);
             }
 
             @Override
