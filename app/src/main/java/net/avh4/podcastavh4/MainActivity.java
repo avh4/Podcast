@@ -15,6 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import net.avh4.podcastavh4.audio.AndroidPlayer;
+import net.avh4.podcastavh4.fetch.RadioLabClient;
+
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {

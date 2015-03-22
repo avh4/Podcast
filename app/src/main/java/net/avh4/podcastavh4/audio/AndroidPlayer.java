@@ -1,8 +1,10 @@
-package net.avh4.podcastavh4;
+package net.avh4.podcastavh4.audio;
 
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
+
+import net.avh4.podcastavh4.Player;
 
 public class AndroidPlayer implements Player {
 

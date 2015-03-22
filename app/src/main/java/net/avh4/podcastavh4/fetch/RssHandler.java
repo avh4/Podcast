@@ -1,4 +1,4 @@
-package net.avh4.podcastavh4;
+package net.avh4.podcastavh4.fetch;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

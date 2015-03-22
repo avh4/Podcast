@@ -1,4 +1,4 @@
-package net.avh4.podcastavh4;
+package net.avh4.podcastavh4.fetch;
 
 public class RadioLabClient extends RssPodcastSource {
     public RadioLabClient() {

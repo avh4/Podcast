@@ -1,4 +1,4 @@
-package net.avh4.podcastavh4;
+package net.avh4.podcastavh4.fetch;
 
 import junit.framework.TestCase;
 

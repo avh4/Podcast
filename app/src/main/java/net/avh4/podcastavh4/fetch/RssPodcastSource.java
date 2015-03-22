@@ -1,9 +1,11 @@
-package net.avh4.podcastavh4;
+package net.avh4.podcastavh4.fetch;
 
 import android.net.Uri;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.SaxAsyncHttpResponseHandler;
+
+import net.avh4.podcastavh4.PodcastSource;
 
 import org.apache.http.Header;
 
