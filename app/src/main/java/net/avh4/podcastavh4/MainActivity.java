@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import net.avh4.podcastavh4.audio.AndroidPlayer;
 import net.avh4.podcastavh4.fetch.RadioLabClient;
@@ -78,6 +79,8 @@ public class MainActivity extends ActionBarActivity
         podcastSource.get(new PodcastSource.PodcastSourceListener() {
             @Override
             public void onPodcastReady(Uri uri) {
+                TextView name = (TextView) findViewById(R.id.podcastName);
+                name.setText(uri.toString());
                 player.playStream(uri);
             }
 
