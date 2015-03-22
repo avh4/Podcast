@@ -50,7 +50,7 @@ public class MainActivity extends ActionBarActivity
         RadioLabClient.get(new SaxAsyncHttpResponseHandler<RssHandler>(new RssHandler()) {
             @Override
             public void onSuccess(int statusCode, Header[] headers, RssHandler handler) {
-                Log.i(LOG_TAG, "Success: " + handler.latestTitle());
+                Log.i(LOG_TAG, "Success: " + handler.latestTitle() + ": " + handler.latestMediaUrl());
             }
 
             @Override

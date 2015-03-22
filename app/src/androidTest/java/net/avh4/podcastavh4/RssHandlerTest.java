@@ -3,13 +3,17 @@ package net.avh4.podcastavh4;
 import junit.framework.TestCase;
 
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
 
 public class RssHandlerTest extends TestCase {
 
     private RssHandler subject;
 
-    public void testLatestTitle() throws Exception {
+    public void setUp() {
         subject = new RssHandler();
+    }
+
+    public void testLatestTitle() throws Exception {
         subject.startDocument();
         startElement("rss");
         startElement("channel");
@@ -18,13 +22,13 @@ public class RssHandlerTest extends TestCase {
         characters("Fu-Go");
         endElement("title");
         endElement("item");
+        endElement("channel");
         subject.endDocument();
 
         assertEquals("Fu-Go", subject.latestTitle());
     }
 
     public void testLatestTitleWithExtraCharsInBuffer() throws Exception {
-        subject = new RssHandler();
         subject.startDocument();
         startElement("rss");
         startElement("channel");
@@ -33,13 +37,13 @@ public class RssHandlerTest extends TestCase {
         subject.characters("XXFu-GoXX".toCharArray(), 2, 5);
         endElement("title");
         endElement("item");
+        endElement("channel");
         subject.endDocument();
 
         assertEquals("Fu-Go", subject.latestTitle());
     }
 
     public void testLatestTitleInMultipleChunks() throws Exception {
-        subject = new RssHandler();
         subject.startDocument();
         startElement("rss");
         startElement("channel");
@@ -49,13 +53,13 @@ public class RssHandlerTest extends TestCase {
         characters("-Go");
         endElement("title");
         endElement("item");
+        endElement("channel");
         subject.endDocument();
 
         assertEquals("Fu-Go", subject.latestTitle());
     }
 
-    public void testLatestTitleWithOlderTitles() throws Exception {
-        subject = new RssHandler();
+    public void testLatestTitleWithOlderItems() throws Exception {
         subject.startDocument();
         startElement("rss");
         startElement("channel");
@@ -69,13 +73,13 @@ public class RssHandlerTest extends TestCase {
         characters("La Mancha Screwjob");
         endElement("title");
         endElement("item");
+        endElement("channel");
         subject.endDocument();
 
         assertEquals("Fu-Go", subject.latestTitle());
     }
 
     public void testLatestTitleWithSubsequentItemFields() throws Exception {
-        subject = new RssHandler();
         subject.startDocument();
         startElement("rss");
         startElement("channel");
@@ -87,13 +91,13 @@ public class RssHandlerTest extends TestCase {
         characters("During World War II...");
         endElement("description");
         endElement("item");
+        endElement("channel");
         subject.endDocument();
 
         assertEquals("Fu-Go", subject.latestTitle());
     }
 
     public void testLatestTitleWithPriorItemFields() throws Exception {
-        subject = new RssHandler();
         subject.startDocument();
         startElement("rss");
         startElement("channel");
@@ -105,13 +109,13 @@ public class RssHandlerTest extends TestCase {
         characters("Fu-Go");
         endElement("title");
         endElement("item");
+        endElement("channel");
         subject.endDocument();
 
         assertEquals("Fu-Go", subject.latestTitle());
     }
 
     public void testLatestTitleWithChannelTitle() throws Exception {
-        subject = new RssHandler();
         subject.startDocument();
         startElement("rss");
         startElement("channel");
@@ -123,9 +127,49 @@ public class RssHandlerTest extends TestCase {
         characters("Fu-Go");
         endElement("title");
         endElement("item");
+        endElement("channel");
         subject.endDocument();
 
         assertEquals("Fu-Go", subject.latestTitle());
+    }
+
+    public void testLatestMediaUrl() throws Exception {
+        subject.startDocument();
+        startElement("rss");
+        startElement("channel");
+        startElement("item");
+        enclosure("audio/mpeg", "http://feeds.wnyc.org/~r/radiolab/~5/lkhKLVXJosc/radiolab_podcast15fugo.mp3");
+        endElement("item");
+        endElement("channel");
+        subject.endDocument();
+
+        assertEquals("http://feeds.wnyc.org/~r/radiolab/~5/lkhKLVXJosc/radiolab_podcast15fugo.mp3",
+                subject.latestMediaUrl());
+    }
+
+    public void testLatestMediaUrlWithOlderItems() throws Exception {
+        subject.startDocument();
+        startElement("rss");
+        startElement("channel");
+        startElement("item");
+        enclosure("audio/mpeg", "http://feeds.wnyc.org/~r/radiolab/~5/lkhKLVXJosc/radiolab_podcast15fugo.mp3");
+        endElement("item");
+        startElement("item");
+        enclosure("audio/mpeg", "http://feeds.wnyc.org/~r/radiolab/~5/8rAUNHzHyBI/radiolab_podcast09joshgreene.mp3");
+        endElement("item");
+        endElement("channel");
+        subject.endDocument();
+
+        assertEquals("http://feeds.wnyc.org/~r/radiolab/~5/lkhKLVXJosc/radiolab_podcast15fugo.mp3",
+                subject.latestMediaUrl());
+    }
+
+    private void enclosure(String type, String url) throws SAXException {
+        AttributesImpl attributes = new AttributesImpl();
+        attributes.addAttribute(null, "url", "url", null, url);
+        attributes.addAttribute(null, "type", "type", null, type);
+        subject.startElement(null, "enclosure", "enclosure", attributes);
+        subject.endElement(null, "enclosure", "enclosure");
     }
 
     private void startElement(String localName) throws SAXException {

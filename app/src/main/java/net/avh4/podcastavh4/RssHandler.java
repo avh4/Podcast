@@ -6,8 +6,10 @@ import org.xml.sax.helpers.DefaultHandler;
 
 class RssHandler extends DefaultHandler {
     private String buffer;
-    private String latestTitle;
     private boolean sawItem;
+
+    private String latestTitle;
+    private String latestMediaUrl;
 
     @Override
     public void startDocument() throws SAXException {
@@ -20,6 +22,10 @@ class RssHandler extends DefaultHandler {
             buffer = "";
         } else if (localName.equals("item")) {
             sawItem = true;
+        } else if (localName.equals("enclosure")) {
+            if (latestMediaUrl == null) {
+                latestMediaUrl = attributes.getValue("url");
+            }
         }
     }
 
@@ -43,5 +49,9 @@ class RssHandler extends DefaultHandler {
 
     public String latestTitle() {
         return latestTitle;
+    }
+
+    public String latestMediaUrl() {
+        return latestMediaUrl;
     }
 }
