@@ -4,9 +4,16 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.avh4.podcastavh4.audio.AndroidPlayer;
@@ -69,11 +76,21 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        final EpisodeAdapter adapter = new EpisodeAdapter();
+        recyclerView.setAdapter(adapter);
+
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
         podcastSource.get(new PodcastSource.PodcastSourceListener() {
             @Override
             public void onPodcastReady(Episode episode) {
-                TextView name = (TextView) findViewById(R.id.podcastName);
-                name.setText(episode.getTitle());
+                adapter.setEpisode(episode);
+                progressBar.setVisibility(View.GONE); // TODO animate
                 player.playStream(episode.getMediaUri());
             }
 
@@ -138,5 +155,45 @@ public class MainActivity extends ActionBarActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    static class MyViewHolder extends RecyclerView.ViewHolder {
+        public final TextView title;
+
+        public MyViewHolder(View view) {
+            super(view);
+            title = (TextView) view.findViewById(R.id.podcastName);
+        }
+    }
+
+    static class EpisodeAdapter extends RecyclerView.Adapter {
+        private Episode episode = null;
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int i) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.podcast_card, parent, false);
+            return new MyViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
+            MyViewHolder myViewHolder = (MyViewHolder) viewHolder;
+            myViewHolder.title.setText(episode.getTitle());
+        }
+
+        @Override
+        public int getItemCount() {
+            return episode == null ? 0 : 1;
+        }
+
+        public void setEpisode(Episode episode) {
+            boolean hadEpisode = this.episode != null;
+            this.episode = episode;
+            if (hadEpisode) {
+                notifyItemChanged(0);
+            } else {
+                notifyItemInserted(0);
+            }
+        }
     }
 }
