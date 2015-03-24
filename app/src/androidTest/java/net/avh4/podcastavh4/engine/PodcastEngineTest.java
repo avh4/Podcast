@@ -8,14 +8,12 @@ import net.avh4.podcastavh4.Episode;
 import net.avh4.podcastavh4.Player;
 import net.avh4.podcastavh4.PodcastSource;
 
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import org.jdeferred.Deferred;
+import org.jdeferred.impl.DeferredObject;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import static net.avh4.podcastavh4.PodcastSource.PodcastSourceListener;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.verify;
 
 public class PodcastEngineTest extends TestCase {
@@ -29,31 +27,33 @@ public class PodcastEngineTest extends TestCase {
     private Player player;
     @Mock
     private EngineListener subscriber;
-    @Captor
-    private ArgumentCaptor<PodcastSourceListener> listener;
+    private Deferred<Episode, Void, Void> podcastSourceGet;
 
     public void setUp() throws Exception {
         super.setUp();
+
+        podcastSourceGet = new DeferredObject<>();
+
         MockitoAnnotations.initMocks(this);
         subject = new PodcastEngine(podcastSource, player);
         subject.subscribe(subscriber);
-        doNothing().when(podcastSource).get(listener.capture());
+        stub(podcastSource.get()).toReturn(podcastSourceGet.promise());
     }
 
     public void testInitialRun_fetchesLatestEpisode() {
         subject.start();
-        verify(podcastSource).get(Mockito.<PodcastSourceListener>any());
+        verify(podcastSource).get();
     }
 
     public void testWhenSourceLoads_playsEpisode() {
         subject.start();
-        listener.getValue().onPodcastReady(episode);
+        podcastSourceGet.resolve(episode);
         verify(player).playStream(episode.getMediaUri());
     }
 
     public void testWhenSourceLoads_notifiesListener() {
         subject.start();
-        listener.getValue().onPodcastReady(episode);
+        podcastSourceGet.resolve(episode);
         verify(subscriber).onNewPodcast(episode);
     }
 }

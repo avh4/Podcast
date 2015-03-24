@@ -1,13 +1,9 @@
 package net.avh4.podcastavh4;
 
+import org.jdeferred.Promise;
+
 public interface PodcastSource {
-    void get(PodcastSourceListener listener);
+    Promise<Episode, Void, Void> get();
 
     String getTitle();
-
-    interface PodcastSourceListener {
-        public void onPodcastReady(Episode episode);
-
-        public void onError(Throwable throwable);
-    }
 }

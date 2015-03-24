@@ -5,23 +5,37 @@ import android.net.Uri;
 import android.test.ActivityUnitTestCase;
 import android.view.ContextThemeWrapper;
 
+import org.jdeferred.Deferred;
+import org.jdeferred.impl.DeferredObject;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.verify;
+
 public class MainActivityTest extends ActivityUnitTestCase<MainActivity> {
 
     private static final Uri uri = Uri.parse("http://example.com/podcast.mp3");
     private static final String title = "Fu-Go";
 
-    private TestPlayer player;
-    private TestPodcastSource podcastSource;
+    @Mock
+    private Player player;
+    @Mock
+    private PodcastSource podcastSource;
+    private Deferred<Episode, Void, Void> podcastSourceGet;
 
     public MainActivityTest() {
         super(MainActivity.class);
     }
 
     public void setUp() throws Exception {
-        player = new TestPlayer();
+        podcastSourceGet = new DeferredObject<>();
+
+        MockitoAnnotations.initMocks(this);
+        stub(podcastSource.get()).toReturn(podcastSourceGet.promise());
         MainActivity.setNextPlayer(player);
-        podcastSource = new TestPodcastSource();
         MainActivity.setNextPodcastSource(podcastSource);
+
         super.setUp();
         ContextThemeWrapper context = new ContextThemeWrapper(getInstrumentation().getTargetContext(), R.style.AppTheme);
         setActivityContext(context);
@@ -29,35 +43,11 @@ public class MainActivityTest extends ActivityUnitTestCase<MainActivity> {
     }
 
     public void testFetchesPodcast() {
-        assertNotNull(podcastSource.listener);
+        verify(podcastSource).get();
     }
 
     public void testOnSuccessStartsPlayer() {
-        podcastSource.listener.onPodcastReady(new Episode(null, title, uri));
-        assertNotNull(player.uri);
-        assertEquals(uri, player.uri);
-    }
-
-    static class TestPlayer implements Player {
-        public Uri uri;
-
-        @Override
-        public void playStream(Uri uri) {
-            this.uri = uri;
-        }
-    }
-
-    static class TestPodcastSource implements PodcastSource {
-        public PodcastSourceListener listener;
-
-        @Override
-        public void get(PodcastSourceListener listener) {
-            this.listener = listener;
-        }
-
-        @Override
-        public String getTitle() {
-            return null;
-        }
+        podcastSourceGet.resolve(new Episode(null, title, uri));
+        verify(player).playStream(uri);
     }
 }

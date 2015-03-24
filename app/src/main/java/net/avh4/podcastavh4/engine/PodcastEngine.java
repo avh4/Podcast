@@ -1,10 +1,10 @@
 package net.avh4.podcastavh4.engine;
 
-import android.util.Log;
-
 import net.avh4.podcastavh4.Episode;
 import net.avh4.podcastavh4.Player;
 import net.avh4.podcastavh4.PodcastSource;
+
+import org.jdeferred.DoneCallback;
 
 public class PodcastEngine {
 
@@ -19,16 +19,11 @@ public class PodcastEngine {
     }
 
     public void start() {
-        podcastSource.get(new PodcastSource.PodcastSourceListener() {
+        podcastSource.get().then(new DoneCallback<Episode>() {
             @Override
-            public void onPodcastReady(Episode episode) {
+            public void onDone(Episode episode) {
                 listener.onNewPodcast(episode);
                 player.playStream(episode.getMediaUri());
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                Log.e("PodcastEngine", "Request failed", throwable);
             }
         });
     }
