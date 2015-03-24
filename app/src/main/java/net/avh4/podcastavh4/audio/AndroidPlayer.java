@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 
+import net.avh4.podcastavh4.Episode;
 import net.avh4.podcastavh4.Player;
 
 public class AndroidPlayer implements Player {
@@ -18,5 +19,10 @@ public class AndroidPlayer implements Player {
     public void playStream(Uri uri) {
         MediaPlayer player = MediaPlayer.create(context, uri);
         player.start();
+    }
+
+    @Override
+    public void playDownload(Episode episode) {
+        throw new RuntimeException("Not implemented");
     }
 }

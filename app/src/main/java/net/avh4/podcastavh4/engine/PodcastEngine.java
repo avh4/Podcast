@@ -31,4 +31,8 @@ public class PodcastEngine {
     public void subscribe(EngineListener listener) {
         this.listener = listener;
     }
+
+    public void play(Episode episode) {
+        player.playDownload(episode);
+    }
 }
