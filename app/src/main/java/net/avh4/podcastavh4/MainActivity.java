@@ -7,7 +7,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.avh4.podcastavh4.audio.AndroidPlayer;
+import net.avh4.podcastavh4.engine.PodcastEngine;
 import net.avh4.podcastavh4.fetch.RadioLabClient;
 
 
@@ -32,13 +32,13 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
 
-    private final Player player;
-    private final PodcastSource podcastSource;
-
     private static Player nextPlayer = null;
     private static PodcastSource nextPodcastSource = null;
+    private final PodcastEngine engine;
 
     public MainActivity() {
+        final Player player;
+
         if (nextPlayer != null) {
             player = nextPlayer;
             nextPlayer = null;
@@ -46,12 +46,15 @@ public class MainActivity extends ActionBarActivity
             player = new AndroidPlayer(this);
         }
 
+        final PodcastSource podcastSource;
         if (nextPodcastSource != null) {
             podcastSource = nextPodcastSource;
             nextPodcastSource = null;
         } else {
             podcastSource = new RadioLabClient();
         }
+
+        engine = new PodcastEngine(podcastSource, player);
     }
 
     public static void setNextPlayer(Player player) {
@@ -86,17 +89,11 @@ public class MainActivity extends ActionBarActivity
 
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        podcastSource.get(new PodcastSource.PodcastSourceListener() {
-            @Override
-            public void onPodcastReady(Episode episode) {
+        engine.start();
+        engine.subscribe(new EngineAdapter() {
+            public void onNewPodcast(Episode episode) {
                 adapter.setEpisode(episode);
                 progressBar.setVisibility(View.GONE); // TODO animate
-                player.playStream(episode.getMediaUri());
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                Log.e(LOG_TAG, "Request failed", throwable);
             }
         });
     }
@@ -110,7 +107,7 @@ public class MainActivity extends ActionBarActivity
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = podcastSource.getTitle();
+//                mTitle = podcastSource.getTitle();
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
