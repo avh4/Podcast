@@ -91,9 +91,14 @@ public class MainActivity extends ActionBarActivity
 
         engine.start();
         engine.subscribe(new EngineAdapter() {
-            public void onNewPodcast(Episode episode) {
-                adapter.setEpisode(episode);
-                progressBar.setVisibility(View.GONE); // TODO animate
+            public void onNewPodcast(final Episode episode) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.setEpisode(episode);
+                        progressBar.setVisibility(View.GONE); // TODO animate
+                    }
+                });
             }
         });
     }
